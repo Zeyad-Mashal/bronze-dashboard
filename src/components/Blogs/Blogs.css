@@ -1,0 +1,579 @@
+/* Blogs Container */
+.blogs-container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+  padding: 40px 20px;
+}
+
+.blogs-header {
+  max-width: 1200px;
+  margin: 0 auto 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.blogs-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.add-blog-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background-color: #cd7f32;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.add-blog-btn:hover {
+  background-color: #b8732a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(205, 127, 50, 0.3);
+}
+
+.btn-icon {
+  font-size: 1.2rem;
+}
+
+/* Empty State */
+.empty-state {
+  max-width: 1200px;
+  margin: 100px auto;
+  text-align: center;
+  padding: 60px 20px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.empty-state p {
+  font-size: 1.2rem;
+  color: #666666;
+}
+
+/* Blogs Grid */
+.blogs-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+/* Blog Card */
+.blog-card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.blog-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.blog-image-container {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background-color: #e5e5e5;
+}
+
+.blog-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.blog-card:hover .blog-image {
+  transform: scale(1.05);
+}
+
+.blog-actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.blog-card:hover .blog-actions {
+  opacity: 1;
+}
+
+.action-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.edit-btn {
+  background-color: #ffffff;
+  color: #cd7f32;
+}
+
+.edit-btn:hover {
+  background-color: #cd7f32;
+  color: #ffffff;
+}
+
+.delete-btn {
+  background-color: #ffffff;
+  color: #dc3545;
+}
+
+.delete-btn:hover {
+  background-color: #dc3545;
+  color: #ffffff;
+}
+
+.blog-content {
+  padding: 20px;
+}
+
+.blog-name {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 10px 0;
+}
+
+.blog-description {
+  font-size: 0.95rem;
+  color: #666666;
+  line-height: 1.6;
+  margin: 0 0 15px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.blog-date {
+  font-size: 0.85rem;
+  color: #cd7f32;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-content {
+  background-color: #ffffff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 30px;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.modal-header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.close-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: none;
+  color: #666666;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+  font-size: 1.3rem;
+}
+
+.close-btn:hover {
+  background-color: #f5f5f5;
+  color: #1a1a1a;
+}
+
+.modal-body {
+  padding: 30px;
+}
+
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #1a1a1a;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #cd7f32;
+  box-shadow: 0 0 0 3px rgba(205, 127, 50, 0.1);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-file-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  color: #1a1a1a;
+  background-color: #ffffff;
+  cursor: pointer;
+}
+
+.form-file-input::-webkit-file-upload-button {
+  padding: 8px 16px;
+  margin-right: 12px;
+  background-color: #f5f5f5;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #1a1a1a;
+  transition: all 0.3s ease;
+}
+
+.form-file-input::-webkit-file-upload-button:hover {
+  background-color: #e5e5e5;
+}
+
+.image-preview {
+  margin-top: 16px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e5e5e5;
+}
+
+.preview-image {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  display: block;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 24px 30px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.cancel-btn,
+.submit-btn {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-btn {
+  background-color: #f5f5f5;
+  color: #666666;
+}
+
+.cancel-btn:hover {
+  background-color: #e5e5e5;
+  color: #1a1a1a;
+}
+
+.submit-btn {
+  background-color: #cd7f32;
+  color: #ffffff;
+}
+
+.submit-btn:hover {
+  background-color: #b8732a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(205, 127, 50, 0.3);
+}
+
+/* Delete Confirmation Modal */
+.delete-modal-content {
+  background-color: #ffffff;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 450px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  animation: slideUp 0.3s ease;
+  text-align: center;
+}
+
+.delete-modal-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 80px;
+  height: 80px;
+  margin: 30px auto 20px;
+  background-color: #fff5f5;
+  border-radius: 50%;
+  color: #dc3545;
+  font-size: 2.5rem;
+  animation: pulse 0.5s ease;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.delete-modal-header {
+  padding: 0 30px 20px;
+  border-bottom: none;
+}
+
+.delete-modal-header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.delete-modal-body {
+  padding: 0 30px 30px;
+}
+
+.delete-modal-body p {
+  font-size: 1rem;
+  color: #666666;
+  line-height: 1.6;
+  margin: 0 0 10px 0;
+}
+
+.delete-modal-body p strong {
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.delete-warning-text {
+  font-size: 0.9rem;
+  color: #dc3545;
+  font-weight: 500;
+  margin-top: 10px;
+}
+
+.delete-modal-footer {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 0 30px 30px;
+  border-top: none;
+}
+
+.cancel-delete-btn,
+.confirm-delete-btn {
+  padding: 12px 28px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cancel-delete-btn {
+  background-color: #f5f5f5;
+  color: #666666;
+}
+
+.cancel-delete-btn:hover {
+  background-color: #e5e5e5;
+  color: #1a1a1a;
+}
+
+.confirm-delete-btn {
+  background-color: #dc3545;
+  color: #ffffff;
+}
+
+.confirm-delete-btn:hover {
+  background-color: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.confirm-delete-btn svg {
+  font-size: 1.1rem;
+}
+
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+  .blogs-container {
+    padding: 20px 15px;
+  }
+
+  .blogs-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .blogs-title {
+    font-size: 2rem;
+  }
+
+  .add-blog-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .blogs-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .modal-content,
+  .delete-modal-content {
+    max-width: 100%;
+    margin: 10px;
+  }
+
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding: 20px;
+  }
+
+  .delete-modal-icon {
+    width: 70px;
+    height: 70px;
+    font-size: 2rem;
+    margin: 25px auto 15px;
+  }
+
+  .delete-modal-header,
+  .delete-modal-body,
+  .delete-modal-footer {
+    padding: 0 20px 20px;
+  }
+
+  .delete-modal-footer {
+    flex-direction: column;
+  }
+
+  .cancel-delete-btn,
+  .confirm-delete-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .blog-actions {
+    opacity: 1;
+  }
+}
+
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .blogs-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+  }
+}
