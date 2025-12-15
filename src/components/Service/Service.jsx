@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FiPlus,
   FiEdit2,
@@ -7,7 +7,10 @@ import {
   FiAlertTriangle,
 } from "react-icons/fi";
 import "./Service.css";
-
+import GetAllServices from "../../API/Services/GetAllServices";
+import AddServices from "../../API/Services/AddServices";
+import EditService from "../../API/Services/EditService";
+import DeleteService from "../../API/Services/DeleteService";
 const Service = () => {
   const [services, setServices] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -36,17 +39,103 @@ const Service = () => {
     });
     setIsModalOpen(true);
   };
+  useEffect(() => {
+    getAllServices();
+  }, []);
+  const [allServices, setAllServices] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const getAllServices = () => {
+    GetAllServices(setAllServices, setError, setLoading);
+  };
+  const handleAddService = () => {
+    if (
+      !formData.name ||
+      !formData.price ||
+      formData.description.length === 0
+    ) {
+      alert(
+        "Please fill in all required fields and add at least one description"
+      );
+      return;
+    }
+
+    const data = new FormData();
+    data.append("name", formData.name);
+    data.append("price", formData.price);
+
+    // Append description array - each item individually
+    formData.description.forEach((desc) => {
+      data.append("description", desc);
+    });
+
+    // Append images array - each file individually
+    formData.images.forEach((image) => {
+      data.append("images", image);
+    });
+
+    AddServices(data, setError, setLoading, setIsModalOpen, getAllServices);
+  };
+  const handleUpdateService = () => {
+    if (
+      !formData.name ||
+      !formData.price ||
+      formData.description.length === 0
+    ) {
+      alert(
+        "Please fill in all required fields and add at least one description"
+      );
+      return;
+    }
+    const data = new FormData();
+    data.append("name", formData.name);
+    data.append("price", formData.price);
+    // Append description array - each item individually
+    formData.description.forEach((desc) => {
+      data.append("description", desc);
+    });
+
+    // Append images array - each file individually
+    formData.images.forEach((image) => {
+      data.append("images", image);
+    });
+    EditService(
+      data,
+      setError,
+      setLoading,
+      setIsModalOpen,
+      getAllServices,
+      editingService._id
+    );
+  };
+
+  const handleDeleteService = () => {
+    DeleteService(
+      setError,
+      setLoading,
+      setIsDeleteModalOpen,
+      getAllServices,
+      serviceToDelete._id
+    );
+  };
 
   // Open modal for editing service
   const openEditModal = (service) => {
-    setEditingService(service);
+    setEditingService(service); // This stores the entire service object including _id
     setDescriptionInput("");
+
+    // Map images from API structure (array of objects with url) to preview URLs
+    const imagePreviews =
+      service.images && service.images.length > 0
+        ? service.images.map((img) => img.url || img)
+        : [];
+
     setFormData({
-      name: service.name,
-      price: service.price,
-      description: [...service.description],
-      images: [],
-      imagePreviews: [...service.images],
+      name: service.name || "",
+      price: service.price || "",
+      description: service.description ? [...service.description] : [],
+      images: [], // New images to be uploaded
+      imagePreviews: imagePreviews, // Existing images from API
     });
     setIsModalOpen(true);
   };
@@ -97,14 +186,17 @@ const Service = () => {
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     if (files.length > 0) {
-      const newImages = [];
       const newPreviews = [];
+      let loadedCount = 0;
 
       files.forEach((file) => {
         const reader = new FileReader();
         reader.onloadend = () => {
           newPreviews.push(reader.result);
-          if (newPreviews.length === files.length) {
+          loadedCount++;
+
+          // When all files are loaded, update state
+          if (loadedCount === files.length) {
             setFormData((prev) => ({
               ...prev,
               images: [...prev.images, ...files],
@@ -125,61 +217,6 @@ const Service = () => {
       imagePreviews: prev.imagePreviews.filter((_, i) => i !== index),
     }));
   };
-
-  // Add new service
-  const handleAddService = () => {
-    if (
-      !formData.name ||
-      !formData.price ||
-      formData.description.length === 0
-    ) {
-      alert(
-        "Please fill in all required fields and add at least one description"
-      );
-      return;
-    }
-
-    const newService = {
-      id: Date.now(),
-      name: formData.name,
-      price: formData.price,
-      description: formData.description,
-      images: formData.imagePreviews,
-    };
-
-    setServices([...services, newService]);
-    closeModal();
-  };
-
-  // Update existing service
-  const handleUpdateService = () => {
-    if (
-      !formData.name ||
-      !formData.price ||
-      formData.description.length === 0
-    ) {
-      alert(
-        "Please fill in all required fields and add at least one description"
-      );
-      return;
-    }
-
-    setServices(
-      services.map((service) =>
-        service.id === editingService.id
-          ? {
-              ...service,
-              name: formData.name,
-              price: formData.price,
-              description: formData.description,
-              images: formData.imagePreviews,
-            }
-          : service
-      )
-    );
-    closeModal();
-  };
-
   // Open delete confirmation modal
   const openDeleteModal = (service) => {
     setServiceToDelete(service);
@@ -190,16 +227,6 @@ const Service = () => {
   const closeDeleteModal = () => {
     setIsDeleteModalOpen(false);
     setServiceToDelete(null);
-  };
-
-  // Confirm and delete service
-  const confirmDeleteService = () => {
-    if (serviceToDelete) {
-      setServices(
-        services.filter((service) => service.id !== serviceToDelete.id)
-      );
-      closeDeleteModal();
-    }
   };
 
   // Format price
@@ -218,18 +245,18 @@ const Service = () => {
       </div>
 
       {/* Services Grid */}
-      {services.length === 0 ? (
+      {allServices.length === 0 ? (
         <div className="empty-state">
           <p>No services yet. Click "Add New Service" to get started!</p>
         </div>
       ) : (
         <div className="services-grid">
-          {services.map((service) => (
-            <div key={service.id} className="service-card">
+          {allServices.map((service) => (
+            <div key={service._id} className="service-card">
               <div className="service-image-container">
                 {service.images && service.images.length > 0 ? (
                   <img
-                    src={service.images[0]}
+                    src={service.images[0].url}
                     alt={service.name}
                     className="service-image"
                   />
@@ -282,7 +309,20 @@ const Service = () => {
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>{editingService ? "Edit Service" : "Add New Service"}</h2>
+              <div>
+                <h2>{editingService ? "Edit Service" : "Add New Service"}</h2>
+                {editingService && (
+                  <p
+                    style={{
+                      fontSize: "0.85rem",
+                      color: "#666",
+                      marginTop: "4px",
+                    }}
+                  >
+                    ID: {editingService._id}
+                  </p>
+                )}
+              </div>
               <button className="close-btn" onClick={closeModal}>
                 <FiX />
               </button>
@@ -403,11 +443,16 @@ const Service = () => {
               </button>
               <button
                 className="submit-btn"
+                disabled={loading}
                 onClick={
                   editingService ? handleUpdateService : handleAddService
                 }
               >
-                {editingService ? "Update Service" : "Add Service"}
+                {loading
+                  ? "Loading..."
+                  : editingService
+                  ? "Update Service"
+                  : "Add Service"}
               </button>
             </div>
           </div>
@@ -442,8 +487,10 @@ const Service = () => {
               </button>
               <button
                 className="confirm-delete-btn"
-                onClick={confirmDeleteService}
+                onClick={handleDeleteService}
+                disabled={loading}
               >
+                {loading ? "Loading..." : "Delete Service"}
                 <FiTrash2 />
                 Delete
               </button>
