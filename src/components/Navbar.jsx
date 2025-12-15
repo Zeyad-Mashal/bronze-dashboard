@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { HiMenu, HiX } from "react-icons/hi";
 import "./Navbar.css";
 
@@ -23,14 +24,19 @@ const Navbar = () => {
         {/* Desktop Navigation */}
         <ul className={`navbar-menu ${isMenuOpen ? "active" : ""}`}>
           <li className="navbar-item">
-            <a href="/service" className="navbar-link" onClick={closeMenu}>
-              الخدمات
-            </a>
+            <Link to="/" className="navbar-link" onClick={closeMenu}>
+              الحجوزات
+            </Link>
           </li>
           <li className="navbar-item">
-            <a href="/" className="navbar-link" onClick={closeMenu}>
+            <Link to="/service" className="navbar-link" onClick={closeMenu}>
+              الخدمات
+            </Link>
+          </li>
+          <li className="navbar-item">
+            <Link to="/blogs" className="navbar-link" onClick={closeMenu}>
               المقالات
-            </a>
+            </Link>
           </li>
         </ul>
 
