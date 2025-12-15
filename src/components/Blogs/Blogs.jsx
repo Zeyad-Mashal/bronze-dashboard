@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FiPlus,
   FiEdit2,
@@ -7,7 +7,10 @@ import {
   FiAlertTriangle,
 } from "react-icons/fi";
 import "./Blogs.css";
-
+import GetAllBlogs from "../../API/Blog/GetAllBlogs";
+import AddBlog from "../../API/Blog/AddBlog";
+import EditBlog from "../../API/Blog/EditBlog";
+import DeleteBlog from "../../API/Blog/DeleteBlog";
 const Blogs = () => {
   const [blogs, setBlogs] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,10 +20,59 @@ const Blogs = () => {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    date: "",
     image: null,
     imagePreview: null,
   });
+  const [allBlogs, setAllBlogs] = useState([]);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    getAllBlogs();
+  }, []);
+  const getAllBlogs = () => {
+    GetAllBlogs(setAllBlogs, setError, setLoading);
+  };
+  const handleAddBlog = () => {
+    if (!formData.name || !formData.description) {
+      alert("Please fill in all fields");
+      return;
+    }
+    const data = new FormData();
+    data.append("title", formData.name);
+    data.append("description", formData.description);
+    data.append("image", formData.image);
+    AddBlog(data, setError, setLoading, setIsModalOpen, getAllBlogs);
+  };
+
+  const handleUpdateBlog = () => {
+    if (!formData.name || !formData.description) {
+      alert("Please fill in all fields");
+      return;
+    }
+    const data = new FormData();
+    data.append("title", formData.name);
+    data.append("description", formData.description);
+    data.append("image", formData.image);
+    EditBlog(
+      data,
+      setError,
+      setLoading,
+      setIsModalOpen,
+      getAllBlogs,
+      editingBlog._id
+    );
+  };
+
+  const handleDeleteBlog = () => {
+    DeleteBlog(
+      setError,
+      setLoading,
+      setIsDeleteModalOpen,
+      getAllBlogs,
+      blogToDelete._id
+    );
+  };
 
   // Open modal for adding new blog
   const openAddModal = () => {
@@ -37,13 +89,12 @@ const Blogs = () => {
 
   // Open modal for editing blog
   const openEditModal = (blog) => {
-    setEditingBlog(blog);
+    setEditingBlog(blog); // This stores the entire blog object including _id
     setFormData({
-      name: blog.name,
-      description: blog.description,
-      date: blog.date,
+      name: blog.title || "",
+      description: blog.description || "",
       image: null,
-      imagePreview: blog.image,
+      imagePreview: blog.image && blog.image[0] ? blog.image[0].url : null,
     });
     setIsModalOpen(true);
   };
@@ -55,7 +106,6 @@ const Blogs = () => {
     setFormData({
       name: "",
       description: "",
-      date: "",
       image: null,
       imagePreview: null,
     });
@@ -86,48 +136,6 @@ const Blogs = () => {
     }
   };
 
-  // Add new blog
-  const handleAddBlog = () => {
-    if (!formData.name || !formData.description || !formData.date) {
-      alert("Please fill in all fields");
-      return;
-    }
-
-    const newBlog = {
-      id: Date.now(),
-      name: formData.name,
-      description: formData.description,
-      date: formData.date,
-      image: formData.imagePreview,
-    };
-
-    setBlogs([...blogs, newBlog]);
-    closeModal();
-  };
-
-  // Update existing blog
-  const handleUpdateBlog = () => {
-    if (!formData.name || !formData.description || !formData.date) {
-      alert("Please fill in all fields");
-      return;
-    }
-
-    setBlogs(
-      blogs.map((blog) =>
-        blog.id === editingBlog.id
-          ? {
-              ...blog,
-              name: formData.name,
-              description: formData.description,
-              date: formData.date,
-              image: formData.imagePreview,
-            }
-          : blog
-      )
-    );
-    closeModal();
-  };
-
   // Open delete confirmation modal
   const openDeleteModal = (blog) => {
     setBlogToDelete(blog);
@@ -139,15 +147,6 @@ const Blogs = () => {
     setIsDeleteModalOpen(false);
     setBlogToDelete(null);
   };
-
-  // Confirm and delete blog
-  const confirmDeleteBlog = () => {
-    if (blogToDelete) {
-      setBlogs(blogs.filter((blog) => blog.id !== blogToDelete.id));
-      closeDeleteModal();
-    }
-  };
-
   // Format date for display
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -169,18 +168,18 @@ const Blogs = () => {
       </div>
 
       {/* Blogs Grid */}
-      {blogs.length === 0 ? (
+      {allBlogs.length === 0 ? (
         <div className="empty-state">
           <p>No blogs yet. Click "Add New Blog" to get started!</p>
         </div>
       ) : (
         <div className="blogs-grid">
-          {blogs.map((blog) => (
-            <div key={blog.id} className="blog-card">
+          {allBlogs.map((blog) => (
+            <div key={blog._id} className="blog-card">
               <div className="blog-image-container">
                 <img
-                  src={blog.image || "/placeholder-image.jpg"}
-                  alt={blog.name}
+                  src={blog.image[0].url || "/placeholder-image.jpg"}
+                  alt={blog.title}
                   className="blog-image"
                 />
                 <div className="blog-actions">
@@ -201,9 +200,9 @@ const Blogs = () => {
                 </div>
               </div>
               <div className="blog-content">
-                <h3 className="blog-name">{blog.name}</h3>
+                <h3 className="blog-name">{blog.title}</h3>
                 <p className="blog-description">{blog.description}</p>
-                <p className="blog-date">{formatDate(blog.date)}</p>
+                <p className="blog-date">{formatDate(blog.createdAt)}</p>
               </div>
             </div>
           ))}
@@ -215,7 +214,20 @@ const Blogs = () => {
         <div className="modal-overlay" onClick={closeModal}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>{editingBlog ? "Edit Blog" : "Add New Blog"}</h2>
+              <div>
+                <h2>{editingBlog ? "Edit Blog" : "Add New Blog"}</h2>
+                {editingBlog && (
+                  <p
+                    style={{
+                      fontSize: "0.85rem",
+                      color: "#666",
+                      marginTop: "4px",
+                    }}
+                  >
+                    ID: {editingBlog._id}
+                  </p>
+                )}
+              </div>
               <button className="close-btn" onClick={closeModal}>
                 <FiX />
               </button>
@@ -249,18 +261,6 @@ const Blogs = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="date">Date *</label>
-                <input
-                  type="date"
-                  id="date"
-                  name="date"
-                  value={formData.date}
-                  onChange={handleChange}
-                  className="form-input"
-                />
-              </div>
-
-              <div className="form-group">
                 <label htmlFor="image">Image</label>
                 <input
                   type="file"
@@ -288,9 +288,14 @@ const Blogs = () => {
               </button>
               <button
                 className="submit-btn"
+                disabled={loading}
                 onClick={editingBlog ? handleUpdateBlog : handleAddBlog}
               >
-                {editingBlog ? "Update Blog" : "Add Blog"}
+                {loading
+                  ? "Loading..."
+                  : editingBlog
+                  ? "Update Blog"
+                  : "Add Blog"}
               </button>
             </div>
           </div>
@@ -313,7 +318,7 @@ const Blogs = () => {
             <div className="delete-modal-body">
               <p>
                 Are you sure you want to delete{" "}
-                <strong>"{blogToDelete.name}"</strong>?
+                <strong>"{blogToDelete.title || blogToDelete.name}"</strong>?
               </p>
               <p className="delete-warning-text">
                 This action cannot be undone.
@@ -323,10 +328,7 @@ const Blogs = () => {
               <button className="cancel-delete-btn" onClick={closeDeleteModal}>
                 Cancel
               </button>
-              <button
-                className="confirm-delete-btn"
-                onClick={confirmDeleteBlog}
-              >
+              <button className="confirm-delete-btn" onClick={handleDeleteBlog}>
                 <FiTrash2 />
                 Delete
               </button>
