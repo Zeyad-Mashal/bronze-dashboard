@@ -4,9 +4,6 @@ const AddBlog = async (data, setError, setLoading, setIsModalOpen, getAllBlogs) 
     try {
         const response = await fetch(URL, {
             method: 'POST',
-            // headers: {
-            //     "x-is-dashboard": true,
-            // },
             body: data
         });
 
@@ -32,6 +29,8 @@ const AddBlog = async (data, setError, setLoading, setIsModalOpen, getAllBlogs) 
     } catch (error) {
         setError('An error occurred');
         setLoading(false)
+        console.log(error.message);
+
     }
 }
 export default AddBlog;
